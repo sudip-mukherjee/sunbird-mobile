@@ -93,6 +93,7 @@ export class PageFilter {
   }
 
   openFilterOptions(facet) {
+    console.log("facet is",facet);
     let filterDialog = this.popCtrl.create(PageFilterOptions, { facets: facet }, {
       cssClass: 'resource-filter-options'
     });

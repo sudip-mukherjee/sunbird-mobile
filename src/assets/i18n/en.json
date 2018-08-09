@@ -413,5 +413,11 @@
   "YEAR_OF_PASSING": "Year of Passing",
   "YES": "Yes",
   "YOUR_PROFILE_IS": "Your profile is {{%s}}% complete",
-  "YOUR_PROGRESS": "Your Progress: {{%s}}%"
+  "YOUR_PROGRESS": "Your Progress: {{%s}}%",
+  "TRAINER_ROLE": "Trainer",
+  "TRAINEE_ROLE":"Trainee",
+  "TRAINER_ROLE_DESC_1": "Browse through courses",
+  "TRAINER_ROLE_DESC_2": "Find relevant resources",
+  "TRAINER_ROLE_DESC_3": "Browse through groups",
+  "TRAINEE_ROLE_DESC_1": "Browse through resources"
 }
