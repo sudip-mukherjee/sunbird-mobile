@@ -1,17 +1,39 @@
-import { Nav, ToastController } from "ionic-angular";
-import { Component, ViewChild } from '@angular/core';
+import {
+    Nav,
+    ToastController
+} from "ionic-angular";
+import {
+    Component,
+    ViewChild
+} from '@angular/core';
 import { NavController } from "ionic-angular/navigation/nav-controller";
 import { NavParams } from "ionic-angular/navigation/nav-params";
 import { ViewController } from "ionic-angular/navigation/view-controller";
 import { App } from "ionic-angular";
-
 import { SettingsPage } from "../../settings/settings";
-import { OAuthService, SharedPreferences, ProfileType } from "sunbird";
+import {
+    OAuthService,
+    SharedPreferences,
+    ProfileType,
+    Profile,
+    UserSource
+} from "sunbird";
 import { OnboardingPage } from "../../onboarding/onboarding";
-import { Interact, InteractType, InteractSubtype, PageId, Environment, TelemetryService, ProfileService } from "sunbird";
+import {
+    InteractType,
+    InteractSubtype,
+    PageId,
+    Environment,
+    TelemetryService,
+    ProfileService
+} from "sunbird";
 import { generateInteractTelemetry } from "../../../app/telemetryutil";
+import { UserAndGroupsPage } from "../../user-and-groups/user-and-groups";
+
 import { Network } from "@ionic-native/network";
 import { TranslateService } from "@ngx-translate/core";
+import { ReportsPage } from "../../reports/reports";
+import { TelemetryGeneratorService } from "../../../service/telemetry-generator.service";
 
 @Component({
     selector: 'menu-overflow',
@@ -21,6 +43,7 @@ import { TranslateService } from "@ngx-translate/core";
 export class OverflowMenuComponent {
     @ViewChild(Nav) nav;
     items: Array<string>;
+    profile: any = {};
 
     constructor(
         public navCtrl: NavController,
@@ -33,9 +56,16 @@ export class OverflowMenuComponent {
         private preferences: SharedPreferences,
         private network: Network,
         private translate: TranslateService,
-        private toastCtrl: ToastController
+        private toastCtrl: ToastController,
+        private telemetryGeneratorService: TelemetryGeneratorService
     ) {
+        this.items = this.navParams.get("list");
+        this.profile = this.navParams.get("profile") || {};
+    }
+
+    showToast(toastCtrl: ToastController, message: String) {
         this.items = this.navParams.get("list") || [];
+
     }
 
     close(event, i) {
@@ -44,7 +74,27 @@ export class OverflowMenuComponent {
             "index": i
         }));
         switch (i) {
-            case 0: {
+            case "USERS_AND_GROUPS":
+                this.telemetryGeneratorService.generateInteractTelemetry(
+                    InteractType.TOUCH,
+                    InteractSubtype.USER_GROUP_CLICKED,
+                    Environment.USER,
+                    PageId.PROFILE
+                );
+                this.app.getActiveNav().push(UserAndGroupsPage, { profile: this.profile });
+                break;
+
+            case "REPORTS":
+                this.telemetryGeneratorService.generateInteractTelemetry(
+                    InteractType.TOUCH,
+                    InteractSubtype.REPORTS_CLICKED,
+                    Environment.USER,
+                    PageId.PROFILE
+                );
+                this.app.getActiveNav().push(ReportsPage, { profile: this.profile });
+                break;
+
+            case "SETTINGS": {
                 this.telemetryService.interact(generateInteractTelemetry(
                     InteractType.TOUCH,
                     InteractSubtype.SETTINGS_CLICKED,
@@ -57,14 +107,14 @@ export class OverflowMenuComponent {
                 this.app.getActiveNav().push(SettingsPage);
                 break;
             }
-            case 1: {
+            case "LOGOUT":
                 if (this.network.type === 'none') {
                     let toast = this.toastCtrl.create({
                         message: this.translateMessage("NEED_INTERNET_TO_CHANGE"),
                         duration: 2000,
                         position: 'bottom'
-                      });
-                      toast.present();
+                    });
+                    toast.present();
                 }
                 else {
                     this.generateLogoutInteractTelemetry(InteractType.TOUCH,
@@ -74,31 +124,23 @@ export class OverflowMenuComponent {
 
                     this.preferences.getString('GUEST_USER_ID_BEFORE_LOGIN', (val) => {
                         if (val != "") {
-                            let profileRequest = {
-                                uid: val,
-                                handle: "Guest1", //req
-                                avatar: "avatar", //req
-                                language: "en", //req
-                                age: -1,
-                                day: -1,
-                                month: -1,
-                                standard: -1,
-                                profileType: ProfileType.TEACHER
-                            };
-                            this.profileService.setCurrentProfile(true, profileRequest, res => { }, error => { });
+                            let profile: Profile = new Profile();
+                            profile.uid = val;
+                            profile.handle = "Guest1";
+                            profile.profileType = ProfileType.TEACHER;
+                            profile.source = UserSource.LOCAL;
+
+                            this.profileService.setCurrentProfile(true, profile, res => { }, error => { });
                         } else {
                             this.profileService.setAnonymousUser(success => { }, error => { });
                         }
                     });
 
                     this.app.getRootNav().setRoot(OnboardingPage);
-                    this.generateLogoutInteractTelemetry(InteractType.OTHER,
-                        InteractSubtype.LOGOUT_SUCCESS, "");
+                    this.generateLogoutInteractTelemetry(InteractType.OTHER, InteractSubtype.LOGOUT_SUCCESS, "");
                 }
 
                 break;
-            }
-
         }
     }
 

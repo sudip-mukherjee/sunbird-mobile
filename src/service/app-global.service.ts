@@ -8,14 +8,20 @@ import {
     FrameworkDetailsRequest,
     FrameworkService
 } from "sunbird";
-import { Events } from "ionic-angular";
+import {
+    Events,
+    PopoverController,
+    PopoverOptions
+} from "ionic-angular";
+import { UpgradePopover } from "../pages/upgrade/upgrade-popover";
+import { FrameworkConstant } from "../app/app.constant";
 
 @Injectable()
 export class AppGlobalService {
 
-   /**
-    * This property stores the form details at the app level for a particular app sessionI
-    */
+    /**
+     * This property stores the form details at the app level for a particular app sessionI
+     */
     syllabusList: Array<any> = [];
 
     public static readonly USER_INFO_UPDATED = 'user-profile-changed';
@@ -26,18 +32,20 @@ export class AppGlobalService {
     guestProfileType: ProfileType;
 
     session: any;
+    public static isPlayerLaunched:boolean = false;
 
     private frameworkData = [];
-
 
     constructor(private event: Events,
         private authService: AuthService,
         private profile: ProfileService,
         private framework: FrameworkService,
-        private preference: SharedPreferences) {
+        private preference: SharedPreferences,
+        private popoverCtrl: PopoverController) {
         console.log("constructor");
         this.initValues();
         this.listenForEvents();
+        console.log("isPlayerLauncghed"+AppGlobalService.isPlayerLaunched);
     }
 
     isUserLoggedIn(): boolean {
@@ -59,7 +67,9 @@ export class AppGlobalService {
     getNameForCodeInFramework(category, code) {
         let name = undefined;
 
-        if (this.frameworkData[category] && this.frameworkData[category].terms && this.frameworkData[category].terms.length > 0) {
+        if (this.frameworkData[category]
+            && this.frameworkData[category].terms
+            && this.frameworkData[category].terms.length > 0) {
             let matchingTerm = this.frameworkData[category].terms.find((term) => {
                 return term.code == code;
             })
@@ -107,7 +117,6 @@ export class AppGlobalService {
         });
     }
 
-
     private getCurrentUserProfile() {
         console.log("getCurrentUserProfile");
         this.profile.getCurrentUser((response) => {
@@ -134,7 +143,6 @@ export class AppGlobalService {
             this.event.publish(AppGlobalService.PROFILE_OBJ_CHANGED);
         });
     }
-
 
     private getGuestUserInfo() {
         console.log("getGuestUserInfo");
@@ -175,7 +183,7 @@ export class AppGlobalService {
                 defaultFrameworkDetails: true
             };
 
-            if (frameworkId !== undefined && frameworkId.length) {
+            if (frameworkId !== undefined && frameworkId.length && frameworkId != FrameworkConstant.DEFAULT_FRAMEWORK_ID) {
                 req.defaultFrameworkDetails = false;
                 req.frameworkId = frameworkId;
             }
@@ -188,6 +196,24 @@ export class AppGlobalService {
                 (err: any) => {
                     reject(err);
                 });
+        });
+    }
+
+    openPopover(upgradeType: any) {
+        let shouldDismissAlert: boolean = true;
+
+        if (upgradeType.upgrade.type === 'force') {
+            shouldDismissAlert = false;
+        }
+
+        let options: PopoverOptions = {
+            cssClass: 'upgradePopover',
+            showBackdrop: true,
+            enableBackdropDismiss: shouldDismissAlert
+        }
+
+        let popover = this.popoverCtrl.create(UpgradePopover, { type: upgradeType }, options);
+        popover.present({
         });
     }
 }

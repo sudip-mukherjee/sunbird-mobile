@@ -26,7 +26,7 @@ export class MimeType {
 }
 
 export class Search {
-    public static readonly FACETS = ['board', 'gradeLevel', 'subject', 'medium', 'contentType'];
+    public static readonly FACETS = ['proficiency', 'gradeLevel', 'medium', 'contentType'];
 }
 
 export class FlagContent {
@@ -43,18 +43,12 @@ export class PageFilterConstants {
     public static readonly COURSE_FILTER = [
         {
             name: "board",
-            displayName: "BOARD",
+            displayName: "PROFICIENCY",
             values: []
-        },
-        {
-            name: "subject",
-            displayName: "SUBJECT",
-            values: []
-
         },
         {
             name: "medium",
-            displayName: "MEDIUM",
+            displayName: "LANGUAGE",
             values: []
         }
     ];
@@ -62,25 +56,18 @@ export class PageFilterConstants {
     public static readonly RESOURCE_FILTER = [
         {
             name: "board",
-            displayName: "BOARD",
+            displayName: "PROFICIENCY",
             values: []
         },
         {
             name: "gradeLevel",
-            displayName: "CLASS",
+            displayName: "WATER_RESOURCE",
             values: []
-        },
-        {
-            name: "subject",
-            displayName: "SUBJECT",
-            values: []
-
         },
         {
             name: "medium",
-            displayName: "MEDIUM",
+            displayName: "LANGUAGE",
             values: []
-
         },
         {
             name: "contentType",
@@ -91,7 +78,6 @@ export class PageFilterConstants {
 }
 
 export class AudienceFilter {
-
     // TODO : Check with Anil for TEACHER & LOGGED_IN_USER values
     public static readonly GUEST_TEACHER = ["instructor", "learner"];
     public static readonly GUEST_STUDENT = ["learner"];
@@ -107,4 +93,15 @@ export class EventTopics {
 export class ShareUrl {
     public static readonly CONTENT = '/play/content/';
     public static readonly COLLECTION = '/play/collection/';
+}
+
+export class MenuOverflow {
+    public static readonly MENU_GUEST = ['USERS_AND_GROUPS', 'REPORTS', 'SETTINGS'];
+    public static readonly MENU_LOGIN = ['USERS_AND_GROUPS', 'REPORTS', 'SETTINGS', 'LOGOUT'];
+}
+
+
+export class FrameworkConstant {
+    public static readonly DEFAULT_FRAMEWORK_ID = "jdf1";
+    public static readonly DEFAULT_FRAMEWORK_NAME = "Common";
 }

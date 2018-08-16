@@ -16,6 +16,7 @@
     <preference name="BackupWebStorage" value="none" />
     <preference name="SplashScreenDelay" value="5000" />
     <preference name="Orientation" value="portrait" />
+    <preference name="AndroidLaunchMode" value="singleInstance" />
     <preference name="KeyboardDisplayRequiresUserAction" value="false" />
     <hook src="scripts/copyGradleFiles.js" type="before_build" />
     <hook src="scripts/copyGradleFiles.js" type="before_run" />
@@ -105,6 +106,6 @@
     <plugin name="cordova-plugin-sunbirdsplash" spec="https://github.com/project-sunbird/cordova-plugin-sunbirdsplash.git" />
     <plugin name="cordova-plugin-geniecanvas" spec="https://github.com/project-sunbird/cordova-plugin-geniecanvas.git" />
     <plugin name="cordova-plugin-file-opener2" spec="^2.0.19" />
-    <plugin name="cordova-plugin-genie-sdk" spec="https://github.com/project-sunbird/cordova-plugin-genie-sdk.git" />
-    <engine name="android" spec="7.0.0" />
+    <engine name="android" spec="~7.0.0" />
+    <plugin name="cordova-plugin-genie-sdk" spec="/home/sudip/Project-Workspace/Ekstep-workspace/cordova-plugin-genie-sdk" />
 </widget>

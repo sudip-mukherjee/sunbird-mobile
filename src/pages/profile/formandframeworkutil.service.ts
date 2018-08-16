@@ -1,17 +1,20 @@
-import { Injectable, NgZone } from '@angular/core';
+import {
+    Injectable,
+    NgZone
+} from '@angular/core';
 import { Events } from 'ionic-angular';
-
 import {
     FrameworkService,
     CategoryRequest,
     FrameworkDetailsRequest,
     ProfileService,
-    Profile,
     SharedPreferences,
     FormRequest,
     FormService
 } from 'sunbird';
 import { AppGlobalService } from '../../service/app-global.service';
+import { AppVersion } from "@ionic-native/app-version";
+import { FrameworkConstant } from '../../app/app.constant';
 
 @Injectable()
 export class FormAndFrameworkUtilService {
@@ -29,9 +32,9 @@ export class FormAndFrameworkUtilService {
         public zone: NgZone,
         private preference: SharedPreferences,
         private formService: FormService,
-        private appGlobalService: AppGlobalService
+        private appGlobalService: AppGlobalService,
+        private appVersion: AppVersion
     ) {
-
         //Get language selected
         this.preference.getString('selected_language_code', (val: string) => {
             if (val && val.length) {
@@ -100,6 +103,15 @@ export class FormAndFrameworkUtilService {
                     let value = { 'name': frameworkDetails.name, 'frameworkId': frameworkDetails.frameworkId };
                     syllabusList.push(value);
                 });
+
+                // Adding default framework into the list
+                let defaultFramework = {
+                    name: FrameworkConstant.DEFAULT_FRAMEWORK_NAME,
+                    frameworkId: FrameworkConstant.DEFAULT_FRAMEWORK_ID
+                }
+
+                syllabusList.push(defaultFramework);
+
                 //store the framework list in the app component, so that when getFormDetails() gets called again
                 //in the same session of app, then we can get this details, without calling the api
                 this.appGlobalService.setSyllabusList(syllabusList);
@@ -121,7 +133,7 @@ export class FormAndFrameworkUtilService {
                 defaultFrameworkDetails: true
             };
 
-            if (frameworkId !== undefined && frameworkId.length) {
+            if (frameworkId !== undefined && frameworkId.length && frameworkId != FrameworkConstant.DEFAULT_FRAMEWORK_ID) {
                 req.defaultFrameworkDetails = false;
                 req.frameworkId = frameworkId;
             }
@@ -182,6 +194,81 @@ export class FormAndFrameworkUtilService {
                 },
                 (err: any) => {
                     reject(err);
+                });
+        });
+    }
+
+    /**
+     * This method checks if the newer version of the available and respectively shows the dialog with relevant contents
+     */
+    checkNewAppVersion(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            console.log("checkNewAppVersion Called");
+
+            this.appVersion.getVersionCode()
+                .then((versionCode: any) => {
+                    console.log("checkNewAppVersion Current app version - " + versionCode);
+
+                    let result: any;
+
+                    // form api request
+                    let req: FormRequest = {
+                        type: 'app',
+                        subType: 'install',
+                        action: 'upgrade',
+                    };
+                    //form api call
+                    this.formService.getForm(req, (res: any) => {
+                        let response: any = JSON.parse(res);
+
+                        let fields: Array<any> = [];
+                        let ranges: Array<any> = [];
+                        let upgradeTypes: Array<any> = [];
+
+                        if (response && response.result && response.result.fields) {
+                            fields = response.result.fields;
+
+                            fields.forEach(element => {
+                                if (element.language === this.selectedLanguage) {
+                                    if (element.range) {
+                                        ranges = element.range;
+                                    }
+
+                                    if (element.upgradeTypes) {
+                                        upgradeTypes = element.upgradeTypes;
+                                    }
+                                }
+                            });
+
+                            if (ranges && ranges.length > 0 && upgradeTypes && upgradeTypes.length > 0) {
+                                let type: string;
+                                const forceType = "force"
+
+                                ranges.forEach(element => {
+                                    if (versionCode === element.minVersionCode ||
+                                        (versionCode > element.minVersionCode && versionCode < element.maxVersionCode) ||
+                                        versionCode === element.maxVersionCode) {
+                                        console.log("App needs a upgrade of type - " + element.type)
+                                        type = element.type;
+
+                                        if (type === forceType) {
+                                            return true; // this is to stop the foreach loop
+                                        }
+                                    }
+                                });
+
+                                upgradeTypes.forEach(upgradeElement => {
+                                    if (type === upgradeElement.type) {
+                                        result = upgradeElement
+                                    }
+                                });
+                            }
+                        }
+
+                        resolve(result);
+                    }, (error: any) => {
+                        reject(error);
+                    });
                 });
         });
     }

@@ -1,5 +1,8 @@
 import { Component, NgZone } from "@angular/core";
-import { NavController, LoadingController, NavParams, Events, ToastController } from "ionic-angular";
+import {
+  NavController, LoadingController,
+  NavParams, Events, ToastController
+} from "ionic-angular";
 import {
   AuthService,
   UserProfileService,
@@ -24,9 +27,16 @@ import { FormExperience } from "./experience/form.experience";
 import { OverflowMenuComponent } from "./overflowmenu/menu.overflow.component";
 import { UserSearchComponent } from "./user-search/user-search";
 import { ImagePicker } from "./imagepicker/imagepicker";
-import { generateInteractTelemetry, generateImpressionTelemetry } from "../../app/telemetryutil";
+import {
+  generateInteractTelemetry,
+  generateImpressionTelemetry
+} from "../../app/telemetryutil";
 import { TranslateService } from "@ngx-translate/core";
-import { ProfileConstants } from "../../app/app.constant";
+import {
+  ProfileConstants,
+  MenuOverflow
+} from "../../app/app.constant";
+import { AppGlobalService } from "../../service/app-global.service";
 
 /* Interface for the Toast Object */
 export interface toastOptions {
@@ -70,10 +80,7 @@ export class ProfilePage {
   imageUri: string = "assets/imgs/ic_profile_default.png";
   educationIcon: string = "assets/imgs/ic_businessman.png";
   locationIcon: string = "assets/imgs/ic_location.png";
-  list: Array<String> = [
-    "SETTINGS",
-    "LOGOUT"
-  ];
+
   uncompletedDetails: any = {
     title: ""
   };
@@ -110,11 +117,19 @@ export class ProfilePage {
     private navParams: NavParams,
     public events: Events,
     public translate: TranslateService,
-    public toastCtrl: ToastController
+    public toastCtrl: ToastController,
+    private appGlobal: AppGlobalService
   ) {
     this.userId = this.navParams.get("userId") || '';
     this.isRefreshProfile = this.navParams.get("returnRefreshedUserProfileDetails");
     this.isLoggedInUser = this.userId ? false : true;
+
+    //Event for optional and forceful upgrade
+    this.events.subscribe('force_optional_upgrade', (upgrade) => {
+      if (upgrade) {
+        this.appGlobal.openPopover(upgrade)
+      }
+    });
 
   }
 
@@ -139,7 +154,10 @@ export class ProfilePage {
     this.refreshProfileData()
       .then(() => {
         setTimeout(() => {
-          if (refresher) refresher.complete();
+          if (refresher) {
+            refresher.complete();
+          }
+          this.events.publish('refresh:profile');
           loader.dismiss();
         }, 500);
       })
@@ -295,6 +313,9 @@ export class ProfilePage {
           break;
         case "grade":
           this.setMissingProfileDetails('ADD_CLASS');
+          break;
+        case "lastName":
+        this.setMissingProfileDetails('ADD_LAST_NAME');
           break;
       }
     }
@@ -547,7 +568,8 @@ export class ProfilePage {
    */
   showOverflowMenu(event) {
     let popover = this.popoverCtrl.create(OverflowMenuComponent, {
-      list: this.list
+      list: MenuOverflow.MENU_LOGIN,
+      profile: this.profile
     }, {
         cssClass: 'box'
       });
@@ -576,7 +598,7 @@ export class ProfilePage {
     }
 
     this.contentService.searchContent(req,
-      false,false,false,
+      false, false, false,
       (result: any) => {
         this.enrolledCourse = JSON.parse(result).result.contentDataList;
       },

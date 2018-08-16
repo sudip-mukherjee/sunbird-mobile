@@ -54,6 +54,9 @@ $colors: (
   dark_gray:       #979797,
   medium_gray:     #CCCCCC,
   light_gray:      #ECEFF0,
+  gray:            #D8D8D8,
+  text_gray:       #4A4A4A,
+
 
   white:           #FFFFFF,
   white_f7:        #F7F7F7,
@@ -88,6 +91,13 @@ $button-md-border-radius: 6px;
 
 $toolbar-md-title-font-size: 1.6rem;
 $toolbar-md-title-text-color: map-get($colors, primary_black);
+
+$segment-button-md-font-size: 1.4rem;
+$segment-button-md-border-color-activated: map-get($colors, primary);
+$segment-button-md-text-color-activated: map-get($colors, primary);
+$segment-button-md-height: 5.2rem;
+$segment-button-md-line-height: 5rem;
+
 
 
 // App iOS Variables

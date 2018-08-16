@@ -17,12 +17,14 @@ import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer';
 import { FileOpener } from '@ionic-native/file-opener';
 import { AppGlobalService } from '../service/app-global.service';
 import { CourseUtilService } from '../service/course-util.service';
-
+import { UpgradePopover } from '../pages/upgrade/upgrade-popover';
+import { TelemetryGeneratorService } from '../service/telemetry-generator.service';
 
 @NgModule({
   declarations: [
     MyApp,
     TabsPage,
+    UpgradePopover
   ],
   imports: [
     HttpClientModule,
@@ -46,7 +48,8 @@ import { CourseUtilService } from '../service/course-util.service';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    TabsPage
+    TabsPage,
+    UpgradePopover
   ],
   providers: [
     StatusBar,
@@ -59,7 +62,8 @@ import { CourseUtilService } from '../service/course-util.service';
     FileOpener,
     AppGlobalService,
     CourseUtilService,
-    { provide: ErrorHandler, useClass: IonicErrorHandler },
+    TelemetryGeneratorService,
+    { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
 export class AppModule {
@@ -78,8 +82,13 @@ export class AppModule {
 
   registerForEvent() {
     this.eventService.register((response) => {
-      // console.log("Event : " + response);
-      this.events.publish('genie.event', response);
+      let  res = JSON.parse(response);
+      if(res && res.type === "genericEvent"){
+        this.events.publish('generic.event', response);
+      }else{
+        this.events.publish('genie.event', response);
+      }
+      
     }, (error) => {
       // console.log("Event : " + error);
     });

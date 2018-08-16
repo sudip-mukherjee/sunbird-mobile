@@ -16,16 +16,19 @@
   </div>
   <div text-center class="padding-top-10 padding-bottom-10">
     <p class="profile-name">
-      {{profile?.handle}}
-      <ion-icon class="editIcon" name="md-create" color="primary" (click)="editGuestProfile()"></ion-icon>
+      <span class="user">{{profile?.handle}}</span>
+      <!--<span><ion-icon class="editIcon" name="md-create" color="primary" (click)="editGuestProfile()"></ion-icon></span>-->
     </p>
 
-    <p class="change-role" (click)="goToRoles()">
+    <p class="change-role" (click)="goToRoles()" text-uppercase>
       {{'CHANGE_ROLE' | translate }}
+    </p>
+    <p class="user-type">
+      {{profile?.profileType}}
     </p>
   </div>
 
-  <ion-list>
+ <!-- <ion-list>
     <ion-list-header class="section-title padding-left-10" no-padding>
       {{'PROFILE_DETAILS_TITLE' | translate}}
     </ion-list-header>
@@ -66,7 +69,8 @@
             <div class="ellipsis text-align">{{medium}}</div>
             <ion-icon class="icon-align" float="end" name="md-create" color="primary" (click)="editGuestProfile()"></ion-icon>
           </div>
-          <div *ngIf="!profile?.syllabus?.length || !profile?.board?.length || !profile?.medium?.length" (click)="editGuestProfile()" class="vertical-align">{{'ADD' | translate}}</div>
+          <div *ngIf="!profile?.syllabus?.length || !profile?.board?.length || !profile?.medium?.length" (click)="editGuestProfile()"
+            class="vertical-align">{{'ADD' | translate}}</div>
         </ion-col>
       </ion-row>
 
@@ -79,7 +83,8 @@
             <div class="ellipsis text-align">{{grade}}</div>
             <ion-icon class="icon-align" float="end" name="md-create" color="primary" (click)="editGuestProfile()"></ion-icon>
           </div>
-          <div *ngIf="!profile?.syllabus?.length || !profile?.board?.length || !profile?.medium?.length || !profile?.grade?.length" (click)="editGuestProfile()" class="vertical-align">{{'ADD' | translate}}</div>
+          <div *ngIf="!profile?.syllabus?.length || !profile?.board?.length || !profile?.medium?.length || !profile?.grade?.length"
+            (click)="editGuestProfile()" class="vertical-align">{{'ADD' | translate}}</div>
         </ion-col>
       </ion-row>
 
@@ -92,12 +97,13 @@
             <div class="ellipsis text-align">{{subjects}}</div>
             <ion-icon class="icon-align" float="end" name="md-create" color="primary" (click)="editGuestProfile()"></ion-icon>
           </div>
-          <div *ngIf="!profile?.syllabus?.length || !profile?.board?.length || !profile?.medium?.length || !profile?.grade?.length || !profile?.subject?.length" (click)="editGuestProfile()" class="vertical-align">{{'ADD' | translate}}</div>
+          <div *ngIf="!profile?.syllabus?.length || !profile?.board?.length || !profile?.medium?.length || !profile?.grade?.length || !profile?.subject?.length"
+            (click)="editGuestProfile()" class="vertical-align">{{'ADD' | translate}}</div>
         </ion-col>
       </ion-row>
 
     </ion-item>
-  </ion-list>
+  </ion-list> -->
   <div *ngIf="showSignInCard" class="signin-card-bg">
     <sign-in-card (valueChange)="buttonClick($event)" *ngIf="showSignInCard"></sign-in-card>
   </div>

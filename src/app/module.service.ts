@@ -23,11 +23,15 @@ import { SearchModule } from "../pages/search/search.module";
 import { HomePage } from '../pages/home/home';
 import { CoursesPage } from '../pages/courses/courses';
 import { PageFilterMoudule } from '../pages/page-filter/page.filter.module';
+import { UserAndGroupsPageModule } from '../pages/user-and-groups/user-and-groups.module';
+import { ReportsPageModule } from '../pages/reports/reports.module'
+import { UserReportModule } from '../pages/reports/user-report/user-report.module';
 
 const HOME_TAB = { root: HomePage, icon: "home", label: "HOME_BNAV", index: 0, tabsHideOnSubPages: true };
 const COURSE_TAB = { root: CoursesPage, icon: "courses", label: "COURSES_BNAV", index: 1, tabsHideOnSubPages: true };
 const LIBRARY_TAB = { root: ResourcesPage, icon: "resources", label: "LIBRARY_BNAV", index: 2, tabsHideOnSubPages: true, isSelected: true };
 const GUEST_PROFILE_TAB = { root: GuestProfilePage, icon: "profile", label: "PROFILE_BNAV", index: 3, tabsHideOnSubPages: true };
+const GUEST_PROFILE_SWITCH_TAB = { root: GuestProfilePage, icon: "profile", label: "PROFILE_BNAV", index: 3, tabsHideOnSubPages: true, isSelected: true };
 const PROFILE_TAB = { root: ProfilePage, icon: "profile", label: "PROFILE_BNAV", index: 3, tabsHideOnSubPages: true };
 
 export const GUEST_TEACHER_TABS = [
@@ -47,6 +51,18 @@ export const LOGIN_TEACHER_TABS = [
 export const GUEST_STUDENT_TABS = [
     LIBRARY_TAB,
     GUEST_PROFILE_TAB
+]
+
+export const GUEST_TEACHER_SWITCH_TABS = [
+    // HOME_TAB,
+    COURSE_TAB,
+    LIBRARY_TAB,
+    GUEST_PROFILE_SWITCH_TAB
+]
+
+export const GUEST_STUDENT_SWITCH_TABS = [
+    LIBRARY_TAB,
+    GUEST_PROFILE_SWITCH_TAB
 ]
 
 export function initTabs(container: ContainerService, tabs: Array<TabOptions>) {
@@ -79,5 +95,8 @@ export const PluginModules = [
     CollectionDetailsPageModule,
     ContentDetailsPageModule,
     ViewMoreActivityPageModule,
-    PageFilterMoudule
+    PageFilterMoudule,
+    UserAndGroupsPageModule,
+    ReportsPageModule,
+    UserReportModule
 ];

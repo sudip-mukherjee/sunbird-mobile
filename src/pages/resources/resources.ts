@@ -1,24 +1,57 @@
-import { Component, NgZone, OnInit } from '@angular/core';
 import {
-	PageAssembleService, PageAssembleCriteria, ContentService,
-	Impression, ImpressionType, PageId, Environment, TelemetryService,
-	InteractType, InteractSubtype, ContentDetailRequest, SharedPreferences,
-	ContentFilterCriteria, ProfileType, PageAssembleFilter,
+	Component,
+	NgZone,
+	OnInit
+} from '@angular/core';
+import {
+	PageAssembleService,
+	PageAssembleCriteria,
+	ContentService,
+	ImpressionType,
+	PageId,
+	Environment,
+	TelemetryService,
+	InteractType,
+	InteractSubtype,
+	ContentDetailRequest,
+	SharedPreferences,
+	ContentFilterCriteria,
+	ProfileType,
+	PageAssembleFilter,
 	CorrelationData
 } from "sunbird";
-import { NavController, PopoverController, Events, ToastController } from 'ionic-angular';
+import {
+	NavController,
+	PopoverController,
+	Events,
+	ToastController
+} from 'ionic-angular';
 import * as _ from 'lodash';
 import { ViewMoreActivityPage } from '../view-more-activity/view-more-activity';
-import { QRResultCallback, SunbirdQRScanner } from '../qrscanner/sunbirdqrscanner.service';
+import {
+	QRResultCallback,
+	SunbirdQRScanner
+} from '../qrscanner/sunbirdqrscanner.service';
 import { SearchPage } from '../search/search';
-import { generateInteractTelemetry, Map, generateImpressionTelemetry } from '../../app/telemetryutil';
-// import { CourseDetailPage } from '../course-detail/course-detail';
+import {
+	generateInteractTelemetry,
+	Map,
+	generateImpressionTelemetry
+} from '../../app/telemetryutil';
 import { CollectionDetailsPage } from '../collection-details/collection-details';
 import { ContentDetailsPage } from '../content-details/content-details';
 import { TranslateService } from '@ngx-translate/core';
-import { ContentType, MimeType, PageFilterConstants, AudienceFilter } from '../../app/app.constant';
+import {
+	ContentType,
+	MimeType,
+	PageFilterConstants,
+	AudienceFilter
+} from '../../app/app.constant';
 import { Network } from '@ionic-native/network';
-import { PageFilterCallback, PageFilter } from '../page-filter/page.filter';
+import {
+	PageFilterCallback,
+	PageFilter
+} from '../page-filter/page.filter';
 import { EnrolledCourseDetailsPage } from '../enrolled-course-details/enrolled-course-details';
 import { AppGlobalService } from '../../service/app-global.service';
 import Driver from 'driver.js';
@@ -71,7 +104,6 @@ export class ResourcesPage implements OnInit {
 	selectedLanguage: string = 'en';
 
 	//noInternetConnection: boolean = false;
-
 	audienceFilter = [];
 	private corRelationList: Array<CorrelationData>;
 
@@ -99,7 +131,7 @@ export class ResourcesPage implements OnInit {
 		private zone: NgZone,
 		private network: Network,
 		private appGlobal: AppGlobalService,
-		private appVersion: AppVersion
+		private appVersion: AppVersion,
 	) {
 		this.preference.getString('selected_language_code', (val: string) => {
 			if (val && val.length) {
@@ -123,6 +155,14 @@ export class ResourcesPage implements OnInit {
 		this.events.subscribe(AppGlobalService.PROFILE_OBJ_CHANGED, () => {
 			this.swipeDownToRefresh();
 		});
+
+		//Event for optional and forceful upgrade
+		this.events.subscribe('force_optional_upgrade', (upgrade) => {
+			if (upgrade) {
+				this.appGlobal.openPopover(upgrade);
+			}
+		});
+
 
 		if (this.network.type === 'none') {
 			this.isNetworkAvailable = false;
@@ -157,11 +197,29 @@ export class ResourcesPage implements OnInit {
 		});
 	}
 
+	/**
+	 * Angular life cycle hooks
+	 */
+	ngOnInit() {
+		console.log('courses component initialized...');
+		// this.getCourseTabData();
+		this.setSavedContent();
+	}
+
 	ngAfterViewInit() {
 		this.events.subscribe('onboarding-card:completed', (param) => {
 			this.isOnBoardingCardCompleted = param.isOnBoardingCardCompleted;
 		});
 	}
+
+	/**
+	 * Ionic life cycle hook
+	 */
+	ionViewWillLeave(): void {
+		this.isVisible = false;
+		this.events.unsubscribe('genie.event');
+	}
+
 	/**
 	 * It will fetch the guest user profile details
 	 */
@@ -215,30 +273,24 @@ export class ResourcesPage implements OnInit {
 			contentTypes: ContentType.FOR_LIBRARY_TAB,
 			audience: this.audienceFilter
 		};
-		this.contentService.getAllLocalContents(requestParams, (data: any) => {
-			data = JSON.parse(data);
-			console.log('Success: saved resources', data);
-			this.ngZone.run(() => {
-				if (data.result) {
-					//TODO Temporary code - should be fixed at backend
-					_.forEach(data.result, (value, key) => {
-						value.contentData.lastUpdatedOn = value.lastUpdatedTime;
-						if (value.contentData.appIcon) {
-							value.contentData.appIcon = value.basePath + '/' + value.contentData.appIcon;
-						}
-					});
-					this.localResources = data.result;
-					console.log('Success: localResources resources', this.localResources);
-
-				}
-				this.showLoader = false;
+		this.contentService.getAllLocalContents(requestParams)
+			.then(data => {
+				_.forEach(data, (value, key) => {
+					value.contentData.lastUpdatedOn = value.lastUpdatedTime;
+					if (value.contentData.appIcon) {
+						value.contentData.appIcon = value.basePath + '/' + value.contentData.appIcon;
+					}
+				});
+				this.ngZone.run(() => {
+					this.localResources = data;
+					this.showLoader = false;
+				});
+			})
+			.catch(err => {
+				this.ngZone.run(() => {
+					this.showLoader = false;
+				});
 			});
-		}, error => {
-			console.log('error while getting saved contents', error);
-			this.ngZone.run(() => {
-				this.showLoader = false;
-			});
-		});
 	}
 
 	/**
@@ -282,22 +334,21 @@ export class ResourcesPage implements OnInit {
 			}
 
 			if (this.profile.board && this.profile.board.length) {
-				pageAssembleCriteria.filters.board = this.applyProfileFilter(this.profile.board, pageAssembleCriteria.filters.board, "board");
+				pageAssembleCriteria.filters.board = this.applyProfileFilter(this.profile.board, pageAssembleCriteria.filters.board, "proficiency");
 			}
 
-			if (this.profile.medium && this.profile.medium.length) {
-				pageAssembleCriteria.filters.medium = this.applyProfileFilter(this.profile.medium, pageAssembleCriteria.filters.medium, "medium");
-			}
+			// if (this.profile.medium && this.profile.medium.length) {
+			// 	pageAssembleCriteria.filters.medium = this.applyProfileFilter(this.profile.medium, pageAssembleCriteria.filters.medium, "medium");
+			// }
 
 			if (this.profile.grade && this.profile.grade.length) {
 				pageAssembleCriteria.filters.gradeLevel = this.applyProfileFilter(this.profile.grade, pageAssembleCriteria.filters.gradeLevel, "gradeLevel");
 			}
 
-			if (this.profile.subject && this.profile.subject.length) {
-				pageAssembleCriteria.filters.subject = this.applyProfileFilter(this.profile.subject, pageAssembleCriteria.filters.subject, "subject");
-			}
+			// if (this.profile.subject && this.profile.subject.length) {
+			// 	pageAssembleCriteria.filters.subject = this.applyProfileFilter(this.profile.subject, pageAssembleCriteria.filters.subject, "subject");
+			// }
 		}
-
 
 		this.pageService.getPageAssemble(pageAssembleCriteria, res => {
 			that.ngZone.run(() => {
@@ -429,10 +480,7 @@ export class ResourcesPage implements OnInit {
 	}
 
 	ionViewDidEnter() {
-		
-
 		this.isVisible = true;
-
 		this.generateImpressionEvent();
 		this.preference.getString('show_app_walkthrough_screen', (value) => {
 			if (value === 'true') {
@@ -468,7 +516,6 @@ export class ResourcesPage implements OnInit {
 
 	ionViewWillEnter() {
 		this.guestUser = !this.appGlobal.isUserLoggedIn();
-
 		if (this.guestUser) {
 			this.getCurrentUser();
 		} else {
@@ -478,7 +525,6 @@ export class ResourcesPage implements OnInit {
 		if (!this.pageLoadedSuccess) {
 			this.getPopularContent();
 		}
-
 		this.subscribeGenieEvents();
 
 		if (this.network.type === 'none') {
@@ -494,13 +540,7 @@ export class ResourcesPage implements OnInit {
 			}
 		})
 	}
-	/**
-	 * Ionic life cycle hook
-	 */
-	ionViewWillLeave(): void {
-		this.isVisible = false;
-		this.events.unsubscribe('genie.event');
-	}
+
 	/**
 	 *
 	 * @param refresher
@@ -522,15 +562,6 @@ export class ResourcesPage implements OnInit {
 
 		this.getPopularContent(false);
 		this.checkNetworkStatus();
-	}
-
-	/**
-	 * Angular life cycle hooks
-	 */
-	ngOnInit() {
-		console.log('courses component initialized...');
-		// this.getCourseTabData();
-		this.setSavedContent();
 	}
 
 	generateImpressionEvent() {
@@ -603,7 +634,6 @@ export class ResourcesPage implements OnInit {
 	}
 
 	search() {
-
 		this.telemetryService.interact(
 			generateInteractTelemetry(InteractType.TOUCH,
 				InteractSubtype.SEARCH_BUTTON_CLICKED,
@@ -616,8 +646,7 @@ export class ResourcesPage implements OnInit {
 	}
 
 	showContentDetails(content, corRelationList) {
-
-		if (content.contentType === ContentType.COURSE) {
+		if (content.contentData.contentType === ContentType.COURSE) {
 			console.log('Calling course details page');
 			this.navCtrl.push(EnrolledCourseDetailsPage, {
 				content: content,
@@ -682,7 +711,6 @@ export class ResourcesPage implements OnInit {
 					criteria.mode = "soft";
 					that.filterIcon = "./assets/imgs/ic_action_filter.png";
 				}
-
 
 				that.getPopularContent(false, criteria)
 			}

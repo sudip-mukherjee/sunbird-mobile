@@ -19,6 +19,8 @@ import { UserTypeSelectionPage } from '../../user-type-selection/user-type-selec
 import { Network } from '@ionic-native/network';
 import { TranslateService } from '@ngx-translate/core';
 import { FormAndFrameworkUtilService } from '../formandframeworkutil.service';
+import { AppGlobalService } from '../../../service/app-global.service';
+import { MenuOverflow } from '../../../app/app.constant';
 
 /* Interface for the Toast Object */
 export interface toastOptions {
@@ -35,12 +37,10 @@ export interface toastOptions {
 export class GuestProfilePage {
 
   imageUri: string = "assets/imgs/ic_profile_default.png";
-  list: Array<String> = ['SETTINGS'];
 
   showSignInCard: boolean = false;
   isNetworkAvailable: boolean;
   showWarning: boolean = false;
-  /* Temporary Language Constants */
   boards: string = "";
   grade: string = "";
   medium: string = "";
@@ -57,7 +57,8 @@ export class GuestProfilePage {
     position: 'bottom'
   };
 
-  constructor(public navCtrl: NavController,
+  constructor(
+    public navCtrl: NavController,
     public network: Network,
     public popoverCtrl: PopoverController,
     private profileService: ProfileService,
@@ -66,6 +67,7 @@ export class GuestProfilePage {
     private preference: SharedPreferences,
     private toastCtrl: ToastController,
     private translate: TranslateService,
+    private appGlobal: AppGlobalService,
     private formAndFrameworkUtilService: FormAndFrameworkUtilService
   ) {
 
@@ -73,6 +75,13 @@ export class GuestProfilePage {
     this.preference.getString('selected_language_code', (val: string) => {
       if (val && val.length) {
         this.selectedLanguage = val;
+      }
+    });
+
+    //Event for optional and forceful upgrade
+    this.events.subscribe('force_optional_upgrade', (upgrade) => {
+      if (upgrade) {
+        this.appGlobal.openPopover(upgrade)
       }
     });
 
@@ -86,7 +95,7 @@ export class GuestProfilePage {
       if (val == ProfileType.TEACHER) {
         this.showSignInCard = true;
       } else if (val == ProfileType.STUDENT) {
-        this.showSignInCard = false;
+        this.showSignInCard = true;
       }
     })
     if (this.network.type === 'none') {
@@ -129,14 +138,10 @@ export class GuestProfilePage {
   }
 
   editGuestProfile() {
-    if (!this.isNetworkAvailable) {
-      this.showNetworkWarning();
-    }
-    else {
-      this.navCtrl.push(GuestEditProfilePage, {
-        profile: this.profile
-      });
-    }
+    this.navCtrl.push(GuestEditProfilePage, {
+      profile: this.profile,
+      isCurrentUser: true
+    });
   }
 
   showNetworkWarning() {
@@ -151,7 +156,7 @@ export class GuestProfilePage {
    */
   showOverflowMenu(event) {
     this.popoverCtrl.create(OverflowMenuComponent, {
-      list: this.list
+      list: MenuOverflow.MENU_GUEST
     }, {
         cssClass: 'box'
       }).present({
@@ -194,7 +199,6 @@ export class GuestProfilePage {
         }
       });
   }
-
 
   getFrameworkDetails(frameworkId?: string): void {
     this.formAndFrameworkUtilService.getFrameworkDetails(frameworkId)
@@ -271,6 +275,4 @@ export class GuestProfilePage {
     );
     return translatedMsg;
   }
-
-
 }

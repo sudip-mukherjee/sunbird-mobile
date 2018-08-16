@@ -1,6 +1,9 @@
-import { Injectable, NgZone } from '@angular/core';
+import {
+    Injectable,
+    NgZone
+} from '@angular/core';
 import * as _ from 'lodash';
-import { Events } from 'ionic-angular';
+import { Events, ToastOptions } from 'ionic-angular';
 import {
     CategoryRequest,
     ProfileService,
@@ -8,11 +11,13 @@ import {
     SharedPreferences,
 } from 'sunbird';
 import { FormAndFrameworkUtilService } from '../../pages/profile/formandframeworkutil.service';
+import { ToastController } from 'ionic-angular';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class OnboardingService {
     userId: string;
-    profile: any = {};
+    profile: Profile = new Profile(); //TODO: Any should be changed to Profile
     onBoardingSlides: any[];
     isOnBoardingCardCompleted: boolean = false;
     currentIndex: number = 0;
@@ -21,17 +26,25 @@ export class OnboardingService {
     categories: Array<any> = [];
     syllabusList: Array<any> = [];
     boardList: Array<string> = [];
-    gradeList: Array<string> = [];
+    gradeList: Array<any> = [];
     subjectList: Array<string> = [];
     mediumList: Array<string> = [];
     frameworkId: string = '';
+
+    private options: ToastOptions = {
+        message: '',
+        duration: 3000,
+        position: 'bottom'
+    };
 
     constructor(
         private profileService: ProfileService,
         public events: Events,
         public zone: NgZone,
         private preference: SharedPreferences,
-        private formAndFrameworkUtilService: FormAndFrameworkUtilService
+        private formAndFrameworkUtilService: FormAndFrameworkUtilService,
+        private toastCtrl: ToastController,
+        private translate: TranslateService
     ) {
 
         //fetch language code
@@ -150,6 +163,8 @@ export class OnboardingService {
                         if (_.includes(this.profile.syllabus, element.value)) {
                             element.checked = true;
                             displayValues.push(element.text);
+                        } else {
+                            element.checked = false;
                         }
                     });
                     this.onBoardingSlides[0].selectedOptions = this.arrayToString(displayValues);
@@ -389,34 +404,26 @@ export class OnboardingService {
      * This will makes an API call for the current category
      */
     saveDetails(index: number): void {
-        let req: Profile = {
-            age: -1,
-            day: -1,
-            month: -1,
-            standard: -1,
-            syllabus: (_.find(this.onBoardingSlides, ['id', 'syllabusList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'syllabusList']).selectedCode : this.profile.syllabus,
-            board: (_.find(this.onBoardingSlides, ['id', 'boardList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'boardList']).selectedCode : this.profile.board,
-            grade: (_.find(this.onBoardingSlides, ['id', 'gradeList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'gradeList']).selectedCode : this.profile.grade,
-            subject: (_.find(this.onBoardingSlides, ['id', 'subjectList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'subjectList']).selectedCode : this.profile.subject,
-            medium: (_.find(this.onBoardingSlides, ['id', 'mediumList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'mediumList']).selectedCode : this.profile.medium,
-            uid: this.profile.uid,
-            handle: this.profile.handle,
-            isGroupUser: false,
-            language: "en",
-            avatar: "avatar",
-            createdAt: this.profile.createdAt,
-            profileType: this.profile.profileType
-        }
+        let req: Profile = new Profile();
+        req.syllabus = (_.find(this.onBoardingSlides, ['id', 'syllabusList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'syllabusList']).selectedCode : this.profile.syllabus
+        req.board = (_.find(this.onBoardingSlides, ['id', 'boardList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'boardList']).selectedCode : this.profile.board;
+        req.grade = (_.find(this.onBoardingSlides, ['id', 'gradeList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'gradeList']).selectedCode : this.profile.grade;
+        req.subject = (_.find(this.onBoardingSlides, ['id', 'subjectList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'subjectList']).selectedCode : this.profile.subject;
+        req.medium = (_.find(this.onBoardingSlides, ['id', 'mediumList']).selectedCode.length) ? _.find(this.onBoardingSlides, ['id', 'mediumList']).selectedCode : this.profile.medium;
+        req.uid = this.profile.uid;
+        req.handle = this.profile.handle;
+        req.createdAt = this.profile.createdAt;
+        req.profileType = this.profile.profileType;
+        req.source = this.profile.source;
+
         if (index === 0 && !_.find(this.onBoardingSlides, ['id', 'boardList']).selectedCode.length) {
             req.board = [];
             req.medium = [];
             req.grade = [];
             req.subject = [];
         }
-        if (index === 1 && !_.find(this.onBoardingSlides, ['id', 'mediumList']).selectedCode.length) {
-            req.medium = [];
+        if (index === 1 && !_.find(this.onBoardingSlides, ['id', 'gradeList']).selectedCode.length) {
             req.grade = [];
-            req.subject = [];
         }
         if (index === 2 && !_.find(this.onBoardingSlides, ['id', 'gradeList']).selectedCode.length) {
             req.grade = [];
@@ -424,6 +431,21 @@ export class OnboardingService {
         }
         if (index === 3 && !_.find(this.onBoardingSlides, ['id', 'subjectList']).selectedCode.length) {
             req.subject = [];
+        }
+
+
+        if (req.grade && req.grade.length > 0) {
+            req.grade.forEach(gradeCode => {
+                for (let i = 0; i < this.gradeList.length; i++) {
+                    if (this.gradeList[i].value == gradeCode) {
+                        if (!req.gradeValueMap) {
+                            req.gradeValueMap = {};
+                        }
+                        req.gradeValueMap[this.gradeList[i].value] = this.gradeList[i].text
+                        break;
+                    }
+                }
+            });
         }
 
         this.profileService.updateProfile(req,
@@ -460,15 +482,50 @@ export class OnboardingService {
   * @param {number} index         Slide index
   */
     selectedCheckboxValue(selectedSlide: any, index: number) {
-        this.onBoardingSlides[index].selectedCode = [];
-        this.onBoardingSlides[index].selectedOptions = '';
+        if (index == 0) {
+            // To Support offline support for Onboarding Card
+            for (let i = 0; i < selectedSlide.options.length; i++) {
+                if (selectedSlide.options[i].checked) {
+                    this.formAndFrameworkUtilService.getFrameworkDetails(selectedSlide.options[i].value).then((val) => {
+                        this.onBoardingSlides[index].selectedCode = [];
+                        this.onBoardingSlides[index].selectedOptions = '';
 
-        for (let i = index; i < 5; i++) {
-            this.onBoardingSlides[i].selectedCode = [];
-            this.onBoardingSlides[i].selectedOptions = '';
+                        for (let i = index; i < 5; i++) {
+                            this.onBoardingSlides[i].selectedCode = [];
+                            this.onBoardingSlides[i].selectedOptions = '';
+                        }
+
+                        this.setAndSaveDetails(selectedSlide, index);
+                    }).catch(error => {
+                        if (this.profile.syllabus && this.profile.syllabus[0] !== '') {
+                            let displayValues = [];
+        
+                            this.syllabusList.forEach(element => {
+                                if (_.includes(this.profile.syllabus, element.value)) {
+                                    element.checked = true;
+                                    displayValues.push(element.text);
+                                }
+                            });
+                            this.onBoardingSlides[0].selectedOptions = this.arrayToString(displayValues);
+                        }
+                        this.getToast(this.translateMessage("NEED_INTERNET_TO_CHANGE")).present();
+                    });
+                }
+            }
+        } else {
+            this.onBoardingSlides[index].selectedCode = [];
+            this.onBoardingSlides[index].selectedOptions = '';
+
+            for (let i = index; i < 5; i++) {
+                this.onBoardingSlides[i].selectedCode = [];
+                this.onBoardingSlides[i].selectedOptions = '';
+            }
+
+            this.setAndSaveDetails(selectedSlide, index);
         }
 
-        this.setAndSaveDetails(selectedSlide, index);
+
+
     }
 
 
@@ -519,5 +576,29 @@ export class OnboardingService {
             this.profile.subject = [];
             this.checkPrevValue(index + 1, this.getListName(index + 1), this.profile.grade, false);
         }
+    }
+
+    /**
+   * Used to Translate message to current Language
+   * @param {string} messageConst - Message Constant to be translated
+   * @returns {string} translatedMsg - Translated Message
+   */
+    translateMessage(messageConst: string): string {
+        let translatedMsg = '';
+        this.translate.get(messageConst).subscribe(
+            (value: any) => {
+                translatedMsg = value;
+            }
+        );
+        return translatedMsg;
+    }
+
+    /** It will returns Toast Object
+     * @param {message} string - Message for the Toast to show
+     * @returns {object} - toast Object
+     */
+    getToast(message: string = ''): any {
+        this.options.message = message;
+        if (message.length) return this.toastCtrl.create(this.options);
     }
 }

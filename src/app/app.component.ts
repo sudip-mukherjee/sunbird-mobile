@@ -1,25 +1,55 @@
-import { Component, ViewChild, NgZone } from '@angular/core';
-import { Platform, ModalController, AlertController, Nav, App, ToastController, Events } from 'ionic-angular';
+import {
+  Component,
+  ViewChild,
+  NgZone
+} from '@angular/core';
+import {
+  Platform,
+  Nav,
+  App,
+  ToastController,
+  Events
+} from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import {
-  TabsPage, AuthService, ContainerService, PermissionService,
-  Interact, InteractType, InteractSubtype, Environment, TelemetryService,
-  SharedPreferences, ProfileType, UserProfileService
+  TabsPage,
+  AuthService,
+  ContainerService,
+  PermissionService,
+  InteractType,
+  InteractSubtype,
+  Environment,
+  TelemetryService,
+  SharedPreferences,
+  ProfileType,
+  UserProfileService,
+  ProfileService
 } from "sunbird";
-import { initTabs, GUEST_TEACHER_TABS, GUEST_STUDENT_TABS, LOGIN_TEACHER_TABS } from './module.service';
+import {
+  initTabs,
+  GUEST_TEACHER_TABS,
+  GUEST_STUDENT_TABS,
+  LOGIN_TEACHER_TABS,
+  GUEST_TEACHER_SWITCH_TABS
+} from './module.service';
 import { LanguageSettingsPage } from '../pages/language-settings/language-settings';
 import { ImageLoaderConfig } from 'ionic-image-loader';
 import { TranslateService } from '@ngx-translate/core';
 import { SearchPage } from '../pages/search/search';
-// import { CourseDetailPage } from '../pages/course-detail/course-detail';
-
 import { CollectionDetailsPage } from '../pages/collection-details/collection-details';
 import { ContentDetailsPage } from '../pages/content-details/content-details';
-import { generateEndTelemetry, generateInteractTelemetry } from './telemetryutil';
-import { MimeType, ContentType } from './app.constant';
+import {
+  generateEndTelemetry,
+  generateInteractTelemetry
+} from './telemetryutil';
+import {
+  MimeType,
+  ContentType
+} from './app.constant';
 import { EnrolledCourseDetailsPage } from '../pages/enrolled-course-details/enrolled-course-details';
-import { AppGlobalService } from '../service/app-global.service';
 import { ProfileConstants } from './app.constant';
+import { FormAndFrameworkUtilService } from '../pages/profile/formandframeworkutil.service';
+import { AppGlobalService } from '../service/app-global.service';
 
 declare var chcp: any;
 
@@ -47,8 +77,6 @@ export class MyApp {
   constructor(
     private platform: Platform,
     statusBar: StatusBar,
-    private modalCtrl: ModalController,
-    private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private authService: AuthService,
     private containerService: ContainerService,
@@ -60,12 +88,15 @@ export class MyApp {
     private zone: NgZone,
     private telemetryService: TelemetryService,
     private preference: SharedPreferences,
-    private appGlobal: AppGlobalService,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    private formAndFrameowrkUtilService: FormAndFrameworkUtilService,
+    private event: Events,
+    private profile: ProfileService,
+    private preferences: SharedPreferences,
+    private container: ContainerService
   ) {
 
     let that = this;
-
 
     platform.ready().then(() => {
       this.registerDeeplinks();
@@ -76,7 +107,10 @@ export class MyApp {
       this.saveDefaultSyncSetting();
       this.showAppWalkThroughScreen();
 
-      permission.requestPermission(this.permissionList, (response) => {
+      //check if any new app version is available
+      this.checkForUpgrade();
+
+      this.permission.requestPermission(this.permissionList, (response) => {
         this.makeEntryInSupportFolder();
       }, (error) => {
 
@@ -151,6 +185,21 @@ export class MyApp {
 
       this.handleBackButton();
     });
+  }
+
+  private checkForUpgrade() {
+    this.formAndFrameowrkUtilService.checkNewAppVersion()
+      .then(result => {
+        if (result != undefined) {
+          console.log("Force Optional Upgrade - " + JSON.stringify(result));
+          setTimeout(() => {
+            this.events.publish('force_optional_upgrade', { upgrade: result });
+          }, 5000);
+        }
+      })
+      .catch(error => {
+        console.log("Error - " + error);
+      });
   }
 
   makeEntryInSupportFolder() {
@@ -265,6 +314,39 @@ export class MyApp {
         this.generateInteractEvent(data);
       });
     });
+
+    this.events.subscribe('generic.event', (data) => {
+      this.zone.run(() => {
+        let response = JSON.parse(data);
+        if (response && response.data.action && response.data.action === 'logout') {
+          this.authService.getSessionData((session) => {
+            if (session) {
+              this.authService.endSession();
+              (<any>window).splashscreen.clearPrefs();
+            }
+            this.profile.getCurrentUser((response) => {
+              let guestProfile = JSON.parse(response);
+
+              if (guestProfile.profileType == ProfileType.STUDENT) {
+                initTabs(this.container, GUEST_STUDENT_TABS);
+                this.preferences.putString('selected_user_type', ProfileType.STUDENT);
+              } else {
+                initTabs(this.container, GUEST_TEACHER_TABS);
+                this.preferences.putString('selected_user_type', ProfileType.TEACHER);
+              }
+
+              this.event.publish('refresh:profile');
+              this.event.publish(AppGlobalService.USER_INFO_UPDATED);
+
+              this.app.getRootNav().setRoot(TabsPage);
+
+            }, (error) => {
+            });
+
+          });
+        }
+      });
+    });
   }
 
   generateInteractEvent(pageid: string) {
@@ -282,6 +364,8 @@ export class MyApp {
   registerDeeplinks() {
     (<any>window).splashscreen.onDeepLink(deepLinkResponse => {
 
+      console.log("Deeplink : " + deepLinkResponse);
+
       setTimeout(() => {
         let response = deepLinkResponse;
 
@@ -289,6 +373,19 @@ export class MyApp {
           let results = response.code.split("/");
           let dialCode = results[results.length - 1];
           this.nav.push(SearchPage, { dialCode: dialCode });
+        } else if (response.type === "contentDetails") {
+          let hierarchyInfo = JSON.parse(response.hierarchyInfo);
+
+          let content = {
+            identifier: response.id,
+            hierarchyInfo: hierarchyInfo
+          }
+
+          let navObj = this.app.getActiveNavs()[0];
+
+          navObj.push(ContentDetailsPage, {
+            content: content
+          })
         } else if (response.result) {
           this.showContentDetails(response.result);
         }
@@ -297,7 +394,7 @@ export class MyApp {
   }
 
   showContentDetails(content) {
-    if (content.contentType === ContentType.COURSE) {
+    if (content.contentData.contentType === ContentType.COURSE) {
       console.log('Calling course details page');
       this.nav.push(EnrolledCourseDetailsPage, {
         content: content

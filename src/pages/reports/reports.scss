@@ -1,0 +1,61 @@
+reports-page {
+    .settings-item-style {
+        padding-top:5px;
+    }
+    ion-icon{
+        font-size: 22px !important;
+        font-weight: 550;
+    }
+    .bgColor{
+        background-color: map-get($colors, light_gray) !important;
+        border-radius: 6px;
+        padding-top: 5px !important;
+        padding-left: 18px !important;
+    }
+    .marginTop{
+        margin-top: 15px !important
+    }
+    .header-md::after, .tabs-md[tabsPlacement="top"] > .tabbar::after, .footer-md::before, .tabs-md[tabsPlacement="bottom"] > .tabbar::before{
+
+        background-image: none;
+    }
+    .item-md.item-block .item-inner {
+    border-bottom: 0 !important;
+    }
+    .subTitle {
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+      .item-background.item-md {
+        background-color: map-get($colors, light_gray) !important;
+      }
+      .subTitle {
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+      .radius{
+        border-radius: 6px;
+      }
+    //   .padding-left-2{
+    //     padding-left: 2px !important;
+    //   }
+
+      .img-container {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        top: 27%;
+        left: 60%;
+        margin-left: -97px;
+        margin-top: -144x;
+      }
+      .image-text {
+        text-align: center;
+        margin-top: 34vh;
+      }
+      .image_style {
+        width: 335px;
+        height: 102px;
+        border-radius: 50%;
+      }
+}

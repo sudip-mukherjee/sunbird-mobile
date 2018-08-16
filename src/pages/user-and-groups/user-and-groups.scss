@@ -1,0 +1,141 @@
+page-user-and-groups {
+    .img-container {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        top: 30%;
+        left: 60%;
+        margin-left: -97px;
+        margin-top: -144x;
+      }
+
+      .image-text {
+        text-align: center;
+        margin-top: 33vh;
+      }
+      .secondSection {
+        margin-top: 13vh;
+      }
+      .users-groups-toolbar{
+        position:fixed;
+        background-color: white;
+        z-index: 2;
+      }
+
+      .custom {
+        //background-color: white;
+        color: rgba(0, 0, 0, 0.5);
+        box-shadow: none;
+      }
+      .border {
+        border: 2px solid #d9d9d9;
+      }
+      .image_style {
+        width: 335px;
+        height: 102px;
+        border-radius: 50%;
+      }
+
+      .item-background.item-md {
+        background-color: map-get($colors, light_gray) !important;
+      }
+      .subTitle {
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+      .radius{
+        border-radius: 6px;
+      }
+      .blueBorder {
+        border-color: map-get($colors, primary) !important;
+        border-style: solid !important;
+        border-width: 2px !important;
+        border-radius: 4px;
+      }
+      #tick {
+        position: relative;
+        width: 20px;
+        bottom: 16px;
+        right: 6px;
+        height: 20px;
+      }
+      .elipsis{
+        width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        }
+      .nouser {
+        text-align: center;
+        background-color: #eceff0;
+        padding: 21px 0px 34px 0px;
+        margin-top: 2vh;
+      }
+      .radius{
+        border-radius: 6px;
+      }
+      //.item-background.item-md {
+        //background-color: cadetblue;
+      //}
+      .bg-color-white {
+        background-color: map-get($colors, light_gray) !important;
+      }
+
+      .error-message-contentplay{
+        width: -webkit-fill-available;
+        background-color: #a1a1a1;
+        padding: 5px 0px 5px 20px;
+        color: white;
+        position: fixed !important;
+        bottom: 12vh !important;
+      }
+      .advanced-menu{
+        padding: 0 !important;
+        // padding-top: 0 !important;
+        // padding-bottom: 0 !important;
+        // padding-right: 0 !important;
+       // padding-left:7% !important;
+      }
+      .advanced-menu ion-icon[item-end] {
+            margin-top: 0 !important;
+            padding-right: 8px !important;
+        }
+        .advanced-menu .item-md, .advanced-menu .item-ios {
+          margin-top: 0 !important;
+        }
+        .padding-left-0 {
+          padding-left: 0 !important;
+        }
+        .rm-label-margin ion-label {
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+        }
+        .header-md::after, .tabs-md[tabsPlacement="top"] > .tabbar::after, .footer-md::before, .tabs-md[tabsPlacement="bottom"] > .tabbar::before{
+
+          background-image: none;
+      }
+        //.custom-margin-top{
+          //margin-top: 7vh;
+        //}
+
+}
+.padding-left-2{
+  padding-left: 2px !important;
+}
+
+.segment-md .segment-button {
+  font-weight: 700 !important;
+  color: map-get($colors, dark_gray) !important;
+  background-color: map-get($colors, white);
+}
+
+.segment-md .segment-button.segment-activated {
+  border-color: map-get($colors, primary) !important;
+  color: map-get($colors, primary) !important;
+}
+.description {
+  color: map-get($colors, dark_gray);
+  font-size: 1.5rem;
+  margin-left: 10%;
+  margin-right: 10%;
+}

@@ -12,7 +12,7 @@ import {
   Environment,
   PageId,
   CategoryRequest,
-  FrameworkService
+  FrameworkService,
 } from "sunbird";
 import { PageFilterOptions } from "./options/filter.options";
 import { generateInteractTelemetry } from "../../app/telemetryutil";
@@ -56,6 +56,8 @@ export class PageFilter {
   initFilterValues() {
     // #SB-3708 To avoid the object reference in Javascript. (Deep Clone) 
     this.FILTERS = JSON.parse(JSON.stringify(this.navParams.get('filter')));
+
+    console.log('filter is', this.FILTERS);
 
     let syllabus: Array<string> = this.appGlobalService.getCurrentUser().syllabus;
     let frameworkId = (syllabus && syllabus.length > 0) ? syllabus[0]: undefined;
