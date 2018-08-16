@@ -492,7 +492,6 @@
   "SWITCHING_TO": "Switched to '{{%s}}'",
   "QUESTION_MARKS": "Question (Marks)",
   "PLEASE_SELECT_USER": "Please select a user",
-  "LANGUAGE":"Language",
   "PROFICIENCY":"Proficiency",
   "WATER_RESOURCE":"Water Resource"
 }
