@@ -23,8 +23,11 @@
     <p class="change-role" (click)="goToRoles()" text-uppercase>
       {{'CHANGE_ROLE' | translate }}
     </p>
-    <p class="user-type">
-      {{profile?.profileType}}
+    <p *ngIf="profile?.profileType === 'TEACHER'" class="user-type">
+      {{'TRAINER_ROLE' | translate }}
+    </p>
+    <p *ngIf="profile?.profileType === 'STUDENT'" class="user-type">
+      {{'TRAINEE_ROLE' | translate }}
     </p>
   </div>
 

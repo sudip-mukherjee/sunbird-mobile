@@ -90,6 +90,7 @@
     "ng2-expansion-panels": "0.0.6",
     "ngx-chips": "1.8.2",
     "node-sass": "^4.7.2",
+    "release": "4.0.2",
     "rxjs": "5.5.2",
     "sunbird": "file:../genie-sdk-wrapper/dist",
     "sw-toolbox": "3.6.0",
