@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 
 import { UserProfileService, AuthService, FrameworkService, CategoryRequest } from 'sunbird';
 import { ProfilePage } from './../profile';
-import { languageList } from './../../../config/framework.filters';
+import { languageList, subjectList } from './../../../config/framework.filters';
 import { ProfileConstants } from '../../../app/app.constant';
 
 /* Interface for the Toast Object */
@@ -34,7 +34,7 @@ export class AdditionalInfoComponent {
    *  Fallback values for the list items
    */
   languageList: Array<String> = languageList;
-  subjectList: Array<String> = [];
+  subjectList: Array<String> = subjectList;
   gradeList: Array<String> = [];
 
   options: toastOptions = {

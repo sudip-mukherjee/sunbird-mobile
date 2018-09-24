@@ -26,7 +26,7 @@ export class MimeType {
 }
 
 export class Search {
-    public static readonly FACETS = ['board', 'gradeLevel', 'subject', 'medium', 'contentType'];
+    public static readonly FACETS = ['proficiency', 'gradeLevel', 'medium', 'contentType'];
 }
 
 export class FlagContent {
@@ -43,18 +43,12 @@ export class PageFilterConstants {
     public static readonly COURSE_FILTER = [
         {
             name: "board",
-            displayName: "BOARD",
+            displayName: "PROFICIENCY",
             values: []
-        },
-        {
-            name: "subject",
-            displayName: "SUBJECT",
-            values: []
-
         },
         {
             name: "medium",
-            displayName: "MEDIUM",
+            displayName: "LANGUAGE",
             values: []
         }
     ];
@@ -62,23 +56,17 @@ export class PageFilterConstants {
     public static readonly RESOURCE_FILTER = [
         {
             name: "board",
-            displayName: "BOARD",
+            displayName: "PROFICIENCY",
             values: []
         },
         {
             name: "gradeLevel",
-            displayName: "CLASS",
+            displayName: "WATER_RESOURCE",
             values: []
-        },
-        {
-            name: "subject",
-            displayName: "SUBJECT",
-            values: []
-
         },
         {
             name: "medium",
-            displayName: "MEDIUM",
+            displayName: "LANGUAGE",
             values: []
 
         },

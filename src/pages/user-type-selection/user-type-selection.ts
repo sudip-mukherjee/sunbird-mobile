@@ -88,7 +88,7 @@ export class UserTypeSelectionPage {
       this.teacherCardBorderColor = selectedCardBorderColor;
       this.studentCardBorderColor = borderColor;
       this.selectedUserType = ProfileType.TEACHER;
-      this.continueAs = this.translateMessage('CONTINUE_AS_ROLE', this.translateMessage('TEACHER_ROLE'));
+      this.continueAs = this.translateMessage('CONTINUE_AS_ROLE', this.translateMessage('TRAINER_ROLE'));
       this.preference.putString(KEY_SELECTED_USER_TYPE, this.selectedUserType);
     });
   }
@@ -99,7 +99,7 @@ export class UserTypeSelectionPage {
       this.teacherCardBorderColor = borderColor;
       this.studentCardBorderColor = selectedCardBorderColor;
       this.selectedUserType = ProfileType.STUDENT;
-      this.continueAs = this.translateMessage('CONTINUE_AS_ROLE', this.translateMessage('STUDENT_ROLE'));
+      this.continueAs = this.translateMessage('CONTINUE_AS_ROLE', this.translateMessage('TRAINEE_ROLE'));
       this.preference.putString(KEY_SELECTED_USER_TYPE, this.selectedUserType)
     });
   }

@@ -86,7 +86,7 @@ export class GuestProfilePage {
       if (val == ProfileType.TEACHER) {
         this.showSignInCard = true;
       } else if (val == ProfileType.STUDENT) {
-        this.showSignInCard = false;
+        this.showSignInCard = true;
       }
     })
     if (this.network.type === 'none') {

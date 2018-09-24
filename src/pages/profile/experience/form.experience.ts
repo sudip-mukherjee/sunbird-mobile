@@ -9,6 +9,7 @@ import { UserProfileService, UpdateUserInfoRequest } from 'sunbird';
 import { ProfilePage } from './../profile';
 
 import { AlertController } from 'ionic-angular';
+import { subjectList } from './../../../config/framework.filters';
 
 
 /**
@@ -40,7 +41,7 @@ export class FormExperience {
   /**
    * @todo Fetch languageList, SubjectList and gradeList from the framework
    */
-  subjectList: Array<String> = ["Assamese", "Bengali", "English", "Gujarati", "Hindi", "Kannada", "Marathi", "Punjabi", "Tamil", "Telugu"];
+  subjectList: Array<String> = subjectList;
 
   options: toastOptions = {
     message: '',

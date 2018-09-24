@@ -258,7 +258,7 @@ export class SearchPage {
     if (this.profile) {
 
       if (this.profile.board && this.profile.board.length) {
-        contentSearchRequest.board = this.applyProfileFilter(this.profile.board, contentSearchRequest.board, "board");
+        contentSearchRequest.board = this.applyProfileFilter(this.profile.board, contentSearchRequest.board, "proficiency");
       }
 
       if (this.profile.medium && this.profile.medium.length) {
