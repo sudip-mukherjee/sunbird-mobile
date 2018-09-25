@@ -96,3 +96,7 @@ export class ShareUrl {
     public static readonly CONTENT = '/play/content/';
     public static readonly COLLECTION = '/play/collection/';
 }
+
+export class FrameworkDetail {
+    public static readonly DEFAULT_FRAMEWORK = 'jdf1'
+}

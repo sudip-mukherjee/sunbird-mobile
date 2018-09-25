@@ -3,6 +3,7 @@ import { PopoverController, ViewController, NavParams, Platform } from "ionic-an
 import { AppGlobalService } from "../../service/app-global.service";
 import * as _ from 'lodash';
 import { TranslateService } from "@ngx-translate/core";
+import { FrameworkDetail } from '../../app/app.constant';
 
 import {
   PageAssembleFilter,
@@ -58,7 +59,7 @@ export class PageFilter {
     this.FILTERS = JSON.parse(JSON.stringify(this.navParams.get('filter')));
 
     let syllabus: Array<string> = this.appGlobalService.getCurrentUser().syllabus;
-    let frameworkId = (syllabus && syllabus.length > 0) ? syllabus[0]: undefined;
+    let frameworkId = (syllabus && syllabus.length > 0) ? syllabus[0]: FrameworkDetail.DEFAULT_FRAMEWORK;
 
     this.FILTERS.forEach((element, index: number) => {
       this.getFrameworkData(frameworkId, element.name, index);
