@@ -42,6 +42,11 @@ export class ProfileConstants {
 export class PageFilterConstants {
     public static readonly COURSE_FILTER = [
         {
+            name: "gradeLevel",
+            displayName: "WATER_RESOURCE",
+            values: []
+        },
+        {
             name: "board",
             displayName: "PROFICIENCY",
             values: []
@@ -55,25 +60,19 @@ export class PageFilterConstants {
 
     public static readonly RESOURCE_FILTER = [
         {
-            name: "board",
-            displayName: "PROFICIENCY",
+            name: "gradeLevel",
+            displayName: "WATER_RESOURCE",
             values: []
         },
         {
-            name: "gradeLevel",
-            displayName: "WATER_RESOURCE",
+            name: "board",
+            displayName: "PROFICIENCY",
             values: []
         },
         {
             name: "medium",
             displayName: "LANGUAGE",
             values: []
-
-        },
-        {
-            name: "contentType",
-            displayName: "RESOURCE_TYPE",
-            values: frameworkDataList.contentTypeList.sort()
         }
     ];
 }
