@@ -198,7 +198,7 @@
   "JOB_NAME": "Job Name",
   "JOIN": "JOIN",
   "LABEL_ADD_A_SKILL": "Add a skill",
-  "LANGUAGE": "Language",
+  "LANGUAGE": "LANGUAGE",
   "LANGUAGES": "Languages",
   "LANGUAGE_SETTINGS": "Language Settings",
   "LAST_LOGIN_TIME": "Last login time: {{%s}}",

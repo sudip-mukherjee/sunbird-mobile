@@ -62,19 +62,19 @@
 					{{ contentDetail.description }}
 				</p>
 				<div *ngIf="contentDetail.gradeLevel && contentDetail.gradeLevel.length" margin-top>
-					<div class="content-meta-title" text-uppercase>{{ 'CLASS' | translate }}</div>
+					<div class="content-meta-title" text-uppercase>{{ 'WATER_RESOURCE' | translate }}</div>
 					<span class="text-gray-color">{{contentDetail.gradeLevel}}</span>
 				</div>
-				<div *ngIf="contentDetail.subject" margin-top>
+				<!-- <div *ngIf="contentDetail.subject" margin-top>
 					<div class="content-meta-title" text-uppercase>{{ 'SUBJECT' | translate }}</div>
 					<span class="text-gray-color">{{contentDetail.subject}}</span>
-				</div>
+				</div> -->
 				<div *ngIf="contentDetail.board" margin-top>
-					<div class="content-meta-title" text-uppercase>{{ 'BOARD' | translate }}</div>
+					<div class="content-meta-title" text-uppercase>{{ 'PROFICIENCY' | translate }}</div>
 					<span class="text-gray-color">{{contentDetail.board}}</span>
 				</div>
 				<div *ngIf="contentDetail.medium" margin-top>
-					<div class="content-meta-title">{{ 'MEDIUM' | translate }}</div>
+					<div class="content-meta-title">{{ 'LANGUAGE' | translate }}</div>
 					<span class="text-gray-color">{{contentDetail.medium}}</span>
 				</div>
 			</div>
